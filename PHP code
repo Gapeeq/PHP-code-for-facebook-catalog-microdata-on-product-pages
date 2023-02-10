@@ -1,0 +1,40 @@
+//Add product open graph microdata to the product page html for FB catalog
+add_action('wp_head', 'product_microdata');
+
+function product_microdata() {
+    if (is_product()) {
+        global $post;
+
+        $product = wc_get_product($post->ID);
+
+        $product_tags = get_the_terms($post->ID, 'product_tag');
+        $product_tags_name = array();
+        if ($product_tags) {
+            foreach ($product_tags as $product_tag) {
+                $product_tags_name[] = $product_tag->name;
+            }
+        }
+        $product_tags_name = implode(', ', $product_tags_name);
+
+        $product_categories = get_the_terms($post->ID, 'product_cat');
+        $product_categories_name = array();
+        if ($product_categories) {
+            foreach ($product_categories as $product_category) {
+                $product_categories_name[] = $product_category->name;
+            }
+        }
+        $product_categories_name = implode(', ', $product_categories_name);
+
+        echo '<meta property="og:title" content="' . get_the_title() . '">';
+        echo '<meta property="og:description" content="' . $product->get_short_description() . '">';
+        echo '<meta property="og:url" content="' . get_the_permalink() . '">';
+        echo '<meta property="og:image" content="' . get_the_post_thumbnail_url() . '">';
+        echo '<meta property="product:brand" content="bluebag">';
+        echo '<meta property="product:availability" content="' . ($product->is_in_stock() ? 'in stock' : 'out of stock') . '">';
+        echo '<meta property="product:condition" content="new">';
+        echo '<meta property="product:price:amount" content="' . $product->get_price() . '">';
+        echo '<meta property="product:price:currency" content="' . get_woocommerce_currency() . '">';
+        echo '<meta property="product:retailer_item_id" content="' . $product->get_sku() . '">';
+        echo '<meta property="product:item_group_id" content="' . $product_categories_name . '">';
+    }
+}
